@@ -19,7 +19,7 @@ from __future__ import print_function
 from ppdet.core.workspace import register, create
 from .meta_arch import BaseArch
 
-__all__ = ['YOLOv5', 'YOLOv5u']
+__all__ = ['YOLOv5']
 
 
 @register
@@ -34,7 +34,7 @@ class YOLOv5(BaseArch):
                  post_process='BBoxPostProcess',
                  for_mot=False):
         """
-        YOLOv5 architecture
+        YOLOv5, YOLOv6(https://arxiv.org/abs/2209.02976) and YOLOv7(https://arxiv.org/abs/2207.02696)
 
         Args:
             backbone (nn.Layer): backbone instance
@@ -78,9 +78,7 @@ class YOLOv5(BaseArch):
             return yolo_losses
         else:
             yolo_head_outs = self.yolo_head(neck_feats)
-            post_outs = self.yolo_head.post_process(yolo_head_outs,
-                                                    self.inputs['im_shape'],
-                                                    self.inputs['scale_factor'])
+            post_outs = self.yolo_head.post_process(yolo_head_outs, self.inputs)
 
             if not isinstance(post_outs, (tuple, list)):
                 # if set exclude_post_process, concat([pred_bboxes, pred_scores]) not scaled to origin
@@ -96,10 +94,3 @@ class YOLOv5(BaseArch):
 
     def get_pred(self):
         return self._forward()
-
-
-@register
-class YOLOv5u(YOLOv5):
-    """YOLOv5u is YOLOv5 + YOLOv8Head
-    """
-    pass
